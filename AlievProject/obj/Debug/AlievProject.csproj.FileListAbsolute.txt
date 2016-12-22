@@ -1,0 +1,10 @@
+D:\AlievProject\AlievProject\bin\Debug\AlievProject.exe.config
+D:\AlievProject\AlievProject\bin\Debug\AlievProject.exe
+D:\AlievProject\AlievProject\bin\Debug\AlievProject.pdb
+D:\AlievProject\AlievProject\obj\Debug\AlievProject.csprojResolveAssemblyReference.cache
+D:\AlievProject\AlievProject\obj\Debug\AlievProject.Properties.Resources.resources
+D:\AlievProject\AlievProject\obj\Debug\AlievProject.csproj.GenerateResource.Cache
+D:\AlievProject\AlievProject\obj\Debug\AlievProject.exe
+D:\AlievProject\AlievProject\obj\Debug\AlievProject.pdb
+D:\AlievProject\AlievProject\bin\Debug\encog-core-cs.dll
+D:\AlievProject\AlievProject\obj\Debug\AlievProject.Form1.resources
