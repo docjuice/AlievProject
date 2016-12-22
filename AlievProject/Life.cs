@@ -28,6 +28,9 @@ namespace AlievProject
         BasicNetwork network = new BasicNetwork();
         Random rnd = new Random((int)(DateTime.Now.Ticks % int.MaxValue));
         List<Life> World;
+        public bool isAlive;
+        Pen pen;
+
         public Life(List<Life> world, double X, double Y)
         {
             x = X;
@@ -50,6 +53,9 @@ namespace AlievProject
             network.Structure.FinalizeStructure();
             network.Reset();
             World = world;
+            isAlive = true;
+            pen = new Pen(Color.FromArgb(0, 255, 0), 8);
+            //borncount = rnd.Next(5);
         }
         List<double[]> Memory = new List<double[]>();
         List<double[]> MemorySense = new List<double[]>();
@@ -73,6 +79,7 @@ namespace AlievProject
 
                 double old = 9999;
                 double d = 999;
+
                 do
                 {
                     train.Iteration();
@@ -82,16 +89,16 @@ namespace AlievProject
                     d = Math.Abs(old - train.Error);
                     old = train.Error;
                 } while (train.Error > 0.0001 && epoch < 3000 && d > 0.00001);
-
+                
                 train.FinishTraining();
 
-                //double sumd=0.0; //подсчет суммарной ошибки после обучения
-                //foreach (IMLDataPair pair in trainingSet) 
-                //{
-                //    IMLData output = network.Compute(pair.Input);
-                //    sumd = sumd + Math.Abs(pair.Ideal[0] - output[0]);
-                //    sumd = sumd / trainingSet.InputSize;
-                //}
+                double sumd=0.0; //подсчет суммарной ошибки после обучения
+                foreach (IMLDataPair pair in trainingSet) 
+                {
+                    IMLData output = network.Compute(pair.Input);
+                    sumd = sumd + Math.Abs(pair.Ideal[0] - output[0]);
+                    sumd = sumd / trainingSet.InputSize;
+                }
             }
         }
 
@@ -112,20 +119,32 @@ namespace AlievProject
                 Memory.RemoveAt(0);
                 MemorySense.RemoveAt(0);
             }
-            //Console.SetCursorPosition(0, 3);
+            //Console.SetCursorPosition(0, 3);s
             //Console.Write(Memory.Count.ToString());
         }
-        
+
+        int step = 0;
+        int stepmax = 0;
+
         public void DoLive()
         {
             RefreshSense(); //look around
             Move();//do step
-            SaveToMemory();
-            Train();
+
+            step++;
+            if (step > stepmax)
+            {
+                int maxstep = 5 - (int)(sL + sR + sB + sT);
+                stepmax = rnd.Next(40 / (maxstep));
+                step = 0;
+                SaveToMemory();
+                Train();
+            }
+
             double[][] Input = { new double[] { 0, 0, 0, 0 } };
             IMLDataSet trainingSet;
             //thinking
-            //если я тот кто ближе слабее попробовать съесть, если нет драпать
+            //если тот, кто ближе - слабее, попробовать съесть, если нет драпать
             if (nearlife.borncount > borncount)
             {
                 double[][] SenseData = { new double[] { 0, 0, 0, 0 } };
@@ -142,6 +161,7 @@ namespace AlievProject
             if (output[2] > pB) { pB += 0.001; } else { pB -= 0.001; }
             if (output[3] > pT) { pT += 0.001; } else { pT -= 0.001; }
 
+            recalculateColor();
         }
 
 
@@ -184,21 +204,22 @@ namespace AlievProject
             y += pB - pT;
             if (x < 0)
             {
-                x = 1 - x;
+                x = 1 + x; //
             }
             if (y < 0)
             {
-                y = 1 - y;
+                y = 1 + y; //
             }
             if (x > 1)
             {
-                x = x - 1;
+                x = x - 1; //
             }
             if (y > 1)
             {
-                y = y - 1;
+                y = y - 1; //
             }
         }
+
         Life nearlife = null;
         void RefreshSense()
         {
@@ -215,12 +236,12 @@ namespace AlievProject
                         {
                             mind = d;
                             nearlife = life;
-                            if (d < 0.008)
+                            if (d < 0.025)
                             {
                                 if (rnd.NextDouble() > 0.5)//born new life form 60%
                                 {
                                     //Life newlife = new Life(World, x , y );
-                                    //world.Add(newlife);
+                                    //World.Add(newlife);
                                     borncount += 1;
                                     if (borncount > 5)
                                     {
@@ -284,6 +305,16 @@ namespace AlievProject
         double GetDist(double x1, double x2, double y1, double y2)
         {
             return Math.Sqrt(Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2));
+        }
+
+        public void Draw(Graphics g)
+        {
+            g.DrawRectangle(pen, (float)x * 600 - 4, (float)y * 600 - 4, 8, 8);
+        }
+
+        private void recalculateColor()
+        {
+            pen.Color = Color.FromArgb(0 + nearcount * 51, 255 - nearcount * 51, 0);
         }
     }
 }
